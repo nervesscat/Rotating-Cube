@@ -9,205 +9,93 @@ struct Point{
     float x,y;
 };
 
-struct Face{
-    Vertex l1[2];
-    Vertex l2[2];
-    Vertex l3[2];
-    Vertex l4[2];
-};
 
-float height = 75.0f;
+float height = 100.0f;
+float zAngle = 2.0f;
+Point center = {400.0f, 300.0f};
 
-void printFace(Face face, float center);
+Point* calculateCenter();
 
 // Point A it's going to be modified
 void rotatePoint(Point& pointB, Point& pointA, float angle);
 
-float getRadians(float angle){
-    return angle * M_PI / 180.0f;
-}
+void rotateAll(Point* vertices, Point* centers, float* angles);
+
+void drawLines(RenderWindow& window, Vertex lines[][2]);
+
+float getRadians(float angle);
+
+void calculateLines(Vertex lines[][2]);
 
 int main() {
     RenderWindow window(VideoMode(800, 600), "Cube Rotating");
 
     while (window.isOpen()) {
         Event event;
+
         while (window.pollEvent(event)) {
             if (event.type == Event::Closed)
                 window.close();
         }
 
-        Point center = {400.0f, 300.0f};
-
-        // Starting point
-        Point a = {500.0f, 550.0f};
-        Point b = {550.0f, 550.0f};
-        Point c = {500.0f, 500.0f};
-        Point d = {550.0f, 500.0f};
-
-        Point e = {500.0f, 650.0f};
-        Point f = {550.0f, 650.0f};
-        Point g = {500.0f, 600.0f};
-        Point h = {550.0f, 600.0f};
+        Point* vertices = new Point[8];
 
         float length = 100.0f;
-        
-        float angleA = 90.0f;
-        float angleB = 0.0f;
-        float angleC = -90.0f;
-        float angleD = 180.0f;
 
-        Vertex line[] = {
-            Vertex(Vector2f(a.x, a.y)),
-            Vertex(Vector2f(b.x, b.y))
+        float angles[4] = {
+            90.0f,
+            0.0f,
+            -90.0f,
+            180.f,
         };
 
-        Vertex line2[] = {
-            Vertex(Vector2f(c.x, c.y)),
-            Vertex(Vector2f(d.x, d.y))
-        };
-
-        Vertex line3[] = {
-            Vertex(Vector2f(a.x, a.y)),
-            Vertex(Vector2f(c.x, c.y))
-        };
-        Vertex line4[] = {
-            Vertex(Vector2f(a.x, a.y)),
-            Vertex(Vector2f(c.x, c.y))
-        };
-
-        Face faceUP = {
-            line[2],
-            line2[2],
-            line3[2],
-            line4[2]
-        };
-
-        Vertex line5[] = {
-            Vertex(Vector2f(e.x, e.y)),
-            Vertex(Vector2f(f.x, f.y))
-        };
-
-        Vertex line6[] = {
-            Vertex(Vector2f(g.x, g.y)),
-            Vertex(Vector2f(h.x, h.y))
-        };
-
-        Vertex line7[] = {
-            Vertex(Vector2f(e.x, e.y)),
-            Vertex(Vector2f(g.x, g.y))
-        };
-        Vertex line8[] = {
-            Vertex(Vector2f(e.x, e.y)),
-            Vertex(Vector2f(g.x, g.y))
-        };
-
-        Face faceBottom = {
-            line5[2],
-            line6[2],
-            line7[2],
-            line8[2]
-        };
-
-        Vertex line9[] = {
-            Vertex(Vector2f(e.x, e.y)),
-            Vertex(Vector2f(a.x, a.y))
-        };
-
-        Vertex line10[] = {
-            Vertex(Vector2f(g.x, g.y)),
-            Vertex(Vector2f(b.x, b.y))
-        };
-
-        Vertex line11[] = {
-            Vertex(Vector2f(e.x, e.y)),
-            Vertex(Vector2f(c.x, c.y))
-        };
-        Vertex line12[] = {
-            Vertex(Vector2f(e.x, e.y)),
-            Vertex(Vector2f(d.x, d.y))
-        };
-
-        Face FrontBackFaces = {
-            line9[2],
-            line10[2],
-            line11[2],
-            line12[2]
-        };
+        Vertex lines[12][2];
 
         while(true){
             window.clear();
 
-            angleA += 2.0f;
-            angleB += 2.0f;
-            angleC += 2.0f;
-            angleD += 2.0f;
+            angles[0] += 2.0f;
+            angles[1] += 2.0f;
+            angles[2] += 2.0f;
+            angles[3] += 2.0f;
 
-            //std::cout << cos(getRadians(angleA)) << std::endl;
+            rotateAll(vertices, calculateCenter(), angles);
 
-            Point centerTopFace = {center.x, center.y - height};
-            Point centerBottomFace = {center.x, center.y + height};
+            calculateLines(lines);
 
-            rotatePoint(a, centerTopFace, getRadians(angleA));
-            rotatePoint(b, centerTopFace, getRadians(angleB));
-            rotatePoint(c, centerTopFace, getRadians(angleC));
-            rotatePoint(d, centerTopFace, getRadians(angleD));
+            lines[2][0] = Vertex(Vector2f(vertices[0].x, vertices[0].y));
+            lines[0][0] = Vertex(Vector2f(vertices[0].x, vertices[0].y));
+            lines[8][1] = Vertex(Vector2f(vertices[0].x, vertices[0].y));
 
-            rotatePoint(e, centerBottomFace, getRadians(angleA));
-            rotatePoint(f, centerBottomFace, getRadians(angleB));
-            rotatePoint(g, centerBottomFace, getRadians(angleC));
-            rotatePoint(h, centerBottomFace, getRadians(angleD));
+            lines[0][1] = Vertex(Vector2f(vertices[1].x, vertices[1].y));
+            lines[3][0] = Vertex(Vector2f(vertices[1].x, vertices[1].y));
+            lines[11][1] = Vertex(Vector2f(vertices[1].x, vertices[1].y));
 
-            faceUP.l1[0] = Vertex(Vector2f(a.x, a.y));
-            faceUP.l1[1] = Vertex(Vector2f(b.x, b.y));
+            lines[3][1] = Vertex(Vector2f(vertices[2].x, vertices[2].y)); 
+            lines[1][0] = Vertex(Vector2f(vertices[2].x, vertices[2].y));
+            lines[9][1] = Vertex(Vector2f(vertices[2].x, vertices[2].y));
 
-            faceUP.l2[0] = Vertex(Vector2f(c.x, c.y));
-            faceUP.l2[1] = Vertex(Vector2f(d.x, d.y));
+            lines[1][1] = Vertex(Vector2f(vertices[3].x, vertices[3].y));
+            lines[2][1] = Vertex(Vector2f(vertices[3].x, vertices[3].y));
+            lines[10][1] = Vertex(Vector2f(vertices[3].x, vertices[3].y));
 
-            faceUP.l3[0] = Vertex(Vector2f(a.x, a.y));
-            faceUP.l3[1] = Vertex(Vector2f(d.x, d.y));
+            lines[6][0] = Vertex(Vector2f(vertices[4].x, vertices[4].y));
+            lines[4][0] = Vertex(Vector2f(vertices[4].x, vertices[4].y));
+            lines[8][0] = Vertex(Vector2f(vertices[4].x, vertices[4].y));
 
-            faceUP.l4[0] = Vertex(Vector2f(b.x, b.y)); 
-            faceUP.l4[1] = Vertex(Vector2f(c.x, c.y));   
+            lines[4][1] = Vertex(Vector2f(vertices[5].x, vertices[5].y));
+            lines[7][0] = Vertex(Vector2f(vertices[5].x, vertices[5].y));
+            lines[11][0] = Vertex(Vector2f(vertices[5].x, vertices[5].y));
 
-            faceBottom.l1[0] = Vertex(Vector2f(e.x, e.y));
-            faceBottom.l1[1] = Vertex(Vector2f(f.x, f.y));
+            lines[7][1] = Vertex(Vector2f(vertices[6].x, vertices[6].y));  
+            lines[5][0] = Vertex(Vector2f(vertices[6].x, vertices[6].y));
+            lines[9][0] = Vertex(Vector2f(vertices[6].x, vertices[6].y));
 
-            faceBottom.l2[0] = Vertex(Vector2f(g.x, g.y));
-            faceBottom.l2[1] = Vertex(Vector2f(h.x, h.y));
+            lines[5][1] = Vertex(Vector2f(vertices[7].x, vertices[7].y));
+            lines[6][1] = Vertex(Vector2f(vertices[7].x, vertices[7].y));
+            lines[10][0] = Vertex(Vector2f(vertices[7].x, vertices[7].y));    
 
-            faceBottom.l3[0] = Vertex(Vector2f(e.x, e.y));
-            faceBottom.l3[1] = Vertex(Vector2f(h.x, h.y));
-
-            faceBottom.l4[0] = Vertex(Vector2f(f.x, f.y)); 
-            faceBottom.l4[1] = Vertex(Vector2f(g.x, g.y)); 
-
-            FrontBackFaces.l1[0] = Vertex(Vector2f(e.x, e.y));
-            FrontBackFaces.l1[1] = Vertex(Vector2f(a.x, a.y));
-
-            FrontBackFaces.l2[0] = Vertex(Vector2f(g.x, g.y));
-            FrontBackFaces.l2[1] = Vertex(Vector2f(c.x, c.y));
-
-            FrontBackFaces.l3[0] = Vertex(Vector2f(h.x, h.y));
-            FrontBackFaces.l3[1] = Vertex(Vector2f(d.x, d.y));
-
-            FrontBackFaces.l4[0] = Vertex(Vector2f(f.x, f.y)); 
-            FrontBackFaces.l4[1] = Vertex(Vector2f(b.x, b.y)); 
-
-            window.draw(faceUP.l1, 2, Lines);
-            window.draw(faceUP.l2, 2, Lines);
-            window.draw(faceUP.l3, 2, Lines);
-            window.draw(faceUP.l4, 2, Lines);
-
-            window.draw(faceBottom.l1, 2, Lines);
-            window.draw(faceBottom.l2, 2, Lines);
-            window.draw(faceBottom.l3, 2, Lines);
-            window.draw(faceBottom.l4, 2, Lines);
-
-            window.draw(FrontBackFaces.l1, 2, Lines);
-            window.draw(FrontBackFaces.l2, 2, Lines);
-            window.draw(FrontBackFaces.l3, 2, Lines);
-            window.draw(FrontBackFaces.l4, 2, Lines);
+            drawLines(window, lines);       
 
             window.display();
 
@@ -239,12 +127,37 @@ int main() {
 // Point A it's going to be modified
 void rotatePoint(Point& pointB, Point& pointA, float angle){
     float xNew = 100 * cos(angle) + pointA.x;
-    float yNew = 100 / 2 * sin(angle) + pointA.y;
+    float yNew = 100 / sin(zAngle) * sin(angle) + pointA.y;
     pointB.x = xNew;
     pointB.y = yNew;
-    //std::cout << pointB.x << " " << pointB.y << std::endl;
 }
 
-void printFace(){
+void rotateAll(Point* vertices, Point* centers, float* angles){
+    uint k = 0;
+    for(uint i = 0; i < 8; i++){
+        if(i>3){
+            k = 1;
+        }
+        rotatePoint(vertices[i], centers[k], getRadians(angles[i%4]));
+    }
+}
+
+Point* calculateCenter(){
+    Point* centerTB = new Point[2];
+    centerTB[0] = {center.x, center.y - height/2};
+    centerTB[1] = {center.x, center.y + height};
+
+    return centerTB;
+}
+
+void calculateLines(Vertex lines[][2]){
     
+}
+
+void drawLines(RenderWindow& window, Vertex lines[][2]){
+    for(uint i = 0; i < 12; i++) window.draw(lines[i], 2, Lines);
+}
+
+float getRadians(float angle){
+    return angle * M_PI / 180.0f;
 }
