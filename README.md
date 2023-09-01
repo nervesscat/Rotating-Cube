@@ -1,0 +1,1 @@
+!['A cube rotating'](https://i.ibb.co/vk4LxS8/out-6.gif)

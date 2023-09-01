@@ -11,7 +11,7 @@ struct Point{
 
 
 float height = 100.0f;
-float zAngle = 12.0f;
+float zAngle = 10.0f;
 Point center = {400.0f, 300.0f};
 
 Point* calculateCenter();
@@ -131,8 +131,8 @@ int main() {
 
 // Point A it's going to be modified
 void rotatePoint(Point& pointB, Point& pointA, float angle){
-    float xNew = 100 * cos(angle) + pointA.x;
-    float yNew = 100 / zAngle * sin(angle) + pointA.y;
+    float xNew = height * cos(angle) + pointA.x;
+    float yNew = height / zAngle * sin(angle) + pointA.y;
     pointB.x = xNew;
     pointB.y = yNew;
 }
